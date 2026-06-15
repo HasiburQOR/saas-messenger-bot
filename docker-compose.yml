@@ -1,6 +1,5 @@
-version: "3.8"
-
-services:
+services: # (Removed "version: 3.8" because it's obsolete and causes warnings)
+  # 1. The Database
   db:
     image: postgres:15-alpine
     restart: always
@@ -8,28 +7,42 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - saas_network
 
+  # 2. The Python FastAPI App (Your Brain) - THIS WAS MISSING!
+  fastapi:
+    build: . # Dokploy will build this from your GitHub code
+    restart: always
+    environment:
+      # We construct the DB URL using the variables you will paste into Dokploy
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    networks:
+      - saas_network
+
+  # 3. n8n (The Waiter)
   n8n:
     image: docker.n8n.io/n8nio/n8n
     restart: always
-    ports:
-      - "5678:5678"
     environment:
-      # CHANGE THESE THREE LINES:
-      - N8N_HOST=registry-backing-expend.ngrok-free.dev
+      # 🚨 CHANGE THESE TWO LINES TO YOUR ACTUAL DOKPLOY DOMAINS! 🚨
+      - N8N_HOST=n8n.devhasib.lol
       - N8N_PROTOCOL=https
       - N8N_PORT=5678
-      # KEEP THESE:
       - N8N_ENFORCE_SUBDOMAIN_COOKIE=false
-      - WEBHOOK_URL=https://registry-backing-expend.ngrok-free.dev/
+      - WEBHOOK_URL=https://n8n.devhasib.lol/
     volumes:
       - n8n_data:/home/node/.n8n
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - saas_network
+
+# This internal network allows n8n, fastapi, and db to talk to each other
+networks:
+  saas_network:
+    driver: bridge
 
 volumes:
   postgres_data:
