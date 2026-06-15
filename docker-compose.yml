@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      # CHANGE THESE THREE LINES:
+      - N8N_HOST=registry-backing-expend.ngrok-free.dev
+      - N8N_PROTOCOL=https
+      - N8N_PORT=5678
+      # KEEP THESE:
+      - N8N_ENFORCE_SUBDOMAIN_COOKIE=false
+      - WEBHOOK_URL=https://registry-backing-expend.ngrok-free.dev/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres_data:
+  n8n_data:

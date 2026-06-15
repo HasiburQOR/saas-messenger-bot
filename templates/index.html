@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+    <head>
+        <title>SaaS Bot Dashboard</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                max-width: 600px;
+                margin: 2rem auto;
+                padding: 1rem;
+                background: #f4f4f9;
+            }
+            input,
+            textarea,
+            button {
+                width: 100%;
+                margin-bottom: 1rem;
+                padding: 0.8rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+            button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🤖 SaaS Bot Dashboard</h1>
+        <p>
+            Add products here. The AI will read this database to answer customer
+            questions.
+        </p>
+
+        <form action="/api/products" method="POST">
+            <input
+                type="text"
+                name="name"
+                placeholder="Product Name (e.g., Premium Widget)"
+                required
+            />
+            <textarea
+                name="description"
+                placeholder="Description (e.g., High-quality widget for all needs)"
+                required
+            ></textarea>
+            <input
+                type="text"
+                name="price"
+                placeholder="Price (e.g., $49.99)"
+                required
+            />
+            <button type="submit">Add Product</button>
+        </form>
+    </body>
+</html>
